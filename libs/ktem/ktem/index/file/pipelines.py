@@ -349,7 +349,7 @@ class IndexPipeline(BaseComponent):
             vector_store=self.VS, doc_store=self.DS, embedding=self.embedding
         )
 
-    def handle_docs(self, docs, file_id, file_name) -> Generator[Document, None, int]:
+    def handle_docs(self, docs, file_id, file_name, metadatas) -> Generator[Document, None, int]:
         s_time = time.time()
         text_docs = []
         non_text_docs = []
@@ -382,6 +382,9 @@ class IndexPipeline(BaseComponent):
 
         to_index_chunks = all_chunks + non_text_docs + thumbnail_docs
 
+        # simulation
+        to_index_metadatas = [metadatas for _ in range(len(to_index_chunks))]
+
         # add to doc store
         chunks = []
         n_chunks = 0
@@ -401,7 +404,8 @@ class IndexPipeline(BaseComponent):
             chunk_size = self.chunk_batch_size
             for start_idx in range(0, len(to_index_chunks), chunk_size):
                 chunks = to_index_chunks[start_idx : start_idx + chunk_size]
-                self.handle_chunks_vectorstore(chunks, file_id)
+                metadatas = to_index_metadatas[start_idx : start_idx + chunk_size]
+                self.handle_chunks_vectorstore(chunks, file_id, metadatas)
                 n_chunks += len(chunks)
                 if self.VS:
                     yield Document(
@@ -440,10 +444,10 @@ class IndexPipeline(BaseComponent):
             session.add_all(nodes)
             session.commit()
 
-    def handle_chunks_vectorstore(self, chunks, file_id):
+    def handle_chunks_vectorstore(self, chunks, file_id, metadatas):
         """Run chunks"""
         # run embedding, add to both vector store and doc store
-        self.vector_indexing.add_to_vectorstore(chunks)
+        self.vector_indexing.add_to_vectorstore(chunks, metadatas)
         self.vector_indexing.write_chunk_to_file(chunks)
 
         if self.VS:
@@ -600,8 +604,9 @@ class IndexPipeline(BaseComponent):
         raise NotImplementedError
 
     def stream(
-        self, file_path: str | Path, reindex: bool, **kwargs
+        self, file_path: str | Path, reindex: bool, metadatas: dict = None, **kwargs
     ) -> Generator[Document, None, tuple[str, list[Document]]]:
+        
         # check if the file is already indexed
         if isinstance(file_path, Path):
             file_path = file_path.resolve()
@@ -646,7 +651,7 @@ class IndexPipeline(BaseComponent):
         yield Document(f" => Converting {file_name} to text", channel="debug")
         docs = self.loader.load_data(file_path, extra_info=extra_info)
         yield Document(f" => Converted {file_name} to text", channel="debug")
-        yield from self.handle_docs(docs, file_id, file_name)
+        yield from self.handle_docs(docs, file_id, file_name, metadatas)
 
         self.finish(file_id, file_path)
 
@@ -752,6 +757,7 @@ class IndexDocumentPipeline(BaseFileIndexIndexing):
         print(f"Chunk size: {chunk_size}, chunk overlap: {chunk_overlap}")
 
         print("Using reader", reader)
+
         pipeline: IndexPipeline = IndexPipeline(
             loader=reader,
             splitter=TokenSplitter(
@@ -779,7 +785,7 @@ class IndexDocumentPipeline(BaseFileIndexIndexing):
         raise NotImplementedError
 
     def stream(
-        self, file_paths: str | Path | list[str | Path], reindex: bool = False, **kwargs
+        self, file_paths: str | Path | list[str | Path], reindex: bool = False, metadatas: dict = None, **kwargs
     ) -> Generator[
         Document, None, tuple[list[str | None], list[str | None], list[Document]]
     ]:
@@ -807,7 +813,7 @@ class IndexDocumentPipeline(BaseFileIndexIndexing):
             try:
                 pipeline = self.route(file_path)
                 file_id, docs = yield from pipeline.stream(
-                    file_path, reindex=reindex, **kwargs
+                    file_path, reindex=reindex, metadatas=metadatas, **kwargs
                 )
                 all_docs.extend(docs)
                 file_ids.append(file_id)

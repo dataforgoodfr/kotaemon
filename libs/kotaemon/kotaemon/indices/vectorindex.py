@@ -81,18 +81,24 @@ class VectorIndexing(BaseIndexing):
             print("Adding documents to doc store")
             self.doc_store.add(docs)
 
-    def add_to_vectorstore(self, docs: list[Document]):
+    def add_to_vectorstore(self, docs: list[Document], metadatas: list[dict] = None):
         # in case we want to skip embedding
         if self.vector_store:
-            print(f"Getting embeddings for {len(docs)} nodes")
+            if metadatas:
+                print(f"Getting embeddings for {len(docs)} nodes with {len(metadatas)} metadatas")
+            else:
+                print(f"Getting embeddings for {len(docs)} nodes without any metadatas")
+            
             embeddings = self.embedding(docs)
+            
             print("Adding embeddings to vector store")
             self.vector_store.add(
                 embeddings=embeddings,
                 ids=[t.doc_id for t in docs],
+                metadatas=metadatas,
             )
 
-    def run(self, text: str | list[str] | Document | list[Document]):
+    def run(self, text: str | list[str] | Document | list[Document], metadatas: list[dict]=None):
         input_: list[Document] = []
         if not isinstance(text, list):
             text = [text]
@@ -106,8 +112,7 @@ class VectorIndexing(BaseIndexing):
                 raise ValueError(
                     f"Invalid input type {type(item)}, should be str or Document"
                 )
-
-        self.add_to_vectorstore(input_)
+        self.add_to_vectorstore(input_, metadatas)
         self.add_to_docstore(input_)
         self.write_chunk_to_file(input_)
         self.count_ += len(input_)
