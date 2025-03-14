@@ -110,7 +110,7 @@ class BaseIndex(abc.ABC):
 
     @abc.abstractmethod
     def get_indexing_pipeline(
-        self, settings: dict, user_id: Optional[int]
+        self, settings: dict, user_id: Optional[int], metadatas: Optional[list]
     ) -> "BaseComponent":
         """Return the indexing pipeline that populates the entities into the index
 

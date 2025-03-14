@@ -351,54 +351,46 @@ class LightRAGIndexingPipeline(GraphRAGIndexingPipeline):
 
         yield Document(
             channel="debug",
-            text="[GraphRAG] Creating/Updating index... This can take a long time.",
+            text="[GraphRAG] Creating index... This can take a long time.",
         )
 
-        # Check if graph already exists
-        graph_file = input_path / "graph_chunk_entity_relation.graphml"
-        is_incremental = graph_file.exists()
+        # remove all .json files in the input_path directory (previous cache)
+        json_files = glob.glob(f"{input_path}/*.json")
+        for json_file in json_files:
+            os.remove(json_file)
 
-        # Only clear cache if it's a new graph
-        if not is_incremental:
-            json_files = glob.glob(f"{input_path}/*.json")
-            for json_file in json_files:
-                os.remove(json_file)
-
-        # Initialize or load existing GraphRAG
+        # indexing
         graphrag_func = build_graphrag(
             input_path,
             llm_func=llm_func,
             embedding_func=embedding_func,
         )
-
+        # output must be contain: Loaded graph from
+        # ..input/graph_chunk_entity_relation.graphml with xxx nodes, xxx edges
         total_docs = len(all_docs)
         process_doc_count = 0
         yield Document(
             channel="debug",
-            text=(
-                f"[GraphRAG] {'Updating' if is_incremental else 'Creating'} index: "
-                f"{process_doc_count} / {total_docs} documents."
-            ),
+            text=f"[GraphRAG] Indexed {process_doc_count} / {total_docs} documents.",
         )
 
         for doc_id in range(0, len(all_docs), self.index_batch_size):
             cur_docs = all_docs[doc_id : doc_id + self.index_batch_size]
             combined_doc = "\n".join(cur_docs)
 
-            # Use insert for incremental updates
             graphrag_func.insert(combined_doc)
             process_doc_count += len(cur_docs)
             yield Document(
                 channel="debug",
                 text=(
-                    f"[GraphRAG] {'Updated' if is_incremental else 'Indexed'} "
-                    f"{process_doc_count} / {total_docs} documents."
+                    f"[GraphRAG] Indexed {process_doc_count} "
+                    f"/ {total_docs} documents."
                 ),
             )
 
         yield Document(
             channel="debug",
-            text=f"[GraphRAG] {'Update' if is_incremental else 'Indexing'} finished.",
+            text="[GraphRAG] Indexing finished.",
         )
 
     def stream(
