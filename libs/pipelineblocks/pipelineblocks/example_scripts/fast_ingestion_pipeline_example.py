@@ -1,6 +1,5 @@
 from typing import List
 
-<<<<<<< HEAD
 
 from kotaemon.base import Document, Param, lazy
 from kotaemon.base.component import BaseComponent
@@ -8,17 +7,6 @@ from kotaemon.base.schema import LLMInterface
 from kotaemon.embeddings import OpenAIEmbeddings
 from kotaemon.indices import VectorIndexing
 from kotaemon.indices.vectorindex import VectorRetrieval
-=======
-import json
-
-from kotaemon.base import Document, Param, lazy
-from kotaemon.base.component import BaseComponent
-from kotaemon.base.schema import LLMInterface, HumanMessage, SystemMessage
-from kotaemon.embeddings import OpenAIEmbeddings
-from kotaemon.indices import VectorIndexing
-from kotaemon.indices.vectorindex import VectorRetrieval
-from kotaemon.llms.chats import LCOllamaChat
->>>>>>> 97a2958 ((feat) kotaemon : add libs taxonomy OK & pipelineblocks OK)
 from kotaemon.llms.chats.openai import ChatOpenAI
 from kotaemon.storages import LanceDBDocumentStore
 from kotaemon.storages.vectorstores.qdrant import QdrantVectorStore
@@ -109,12 +97,8 @@ class IndexingPipeline(VectorIndexing):
                                                         inference_type = 'scientific')
         
 
-<<<<<<< HEAD
         metadatas_json = metadatas.model_dump()
-=======
-        metadatas_json = metadatas.model_dump_json()
->>>>>>> 97a2958 ((feat) kotaemon : add libs taxonomy OK & pipelineblocks OK)
-    
+        
         super().run(text=[text_md], metadatas=[metadatas_json])
 
         return None
@@ -149,12 +133,6 @@ if __name__ == "__main__":
     indexing_pipeline = IndexingPipeline(pdf_path=PDF_FOLDER)
     indexing_pipeline.run("1-s2.0-S2211467X23001748-main.pdf")
     indexing_pipeline.run("1-s2.0-S0094119008001095-main.pdf")
-
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 97a2958 ((feat) kotaemon : add libs taxonomy OK & pipelineblocks OK)
 
     # Just for test
 
