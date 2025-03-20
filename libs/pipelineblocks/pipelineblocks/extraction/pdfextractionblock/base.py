@@ -1,10 +1,9 @@
 from typing import AsyncGenerator, Iterator
 
 from kotaemon.base import BaseComponent, Document
-<<<<<<< HEAD
-=======
+
 from pydantic import BaseModel
->>>>>>> 97a2958 ((feat) kotaemon : add libs taxonomy OK & pipelineblocks OK)
+
 
 class BasePdfExtractionBlock(BaseComponent):
 
