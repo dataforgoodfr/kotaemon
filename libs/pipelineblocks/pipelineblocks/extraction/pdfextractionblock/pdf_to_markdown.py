@@ -1,9 +1,7 @@
 from pipelineblocks.extraction.pdfextractionblock.base import BasePdfExtractionBlock
 from pipelineblocks.extraction.pdf_utils.pymu import get_pymupdf4llm
-<<<<<<< HEAD
+
 from typing import List
-=======
->>>>>>> 97a2958 ((feat) kotaemon : add libs taxonomy OK & pipelineblocks OK)
 
 class PdfExtractionToMarkdownBlock(BasePdfExtractionBlock):
 
@@ -13,8 +11,6 @@ class PdfExtractionToMarkdownBlock(BasePdfExtractionBlock):
             - 'group_all' return the entire doc in a long markdown format
             
         TODO implement other methods like 'split_by_chunks' with the length of each chunk, or 'split_by_parts' with a logic split by part... """
-
-<<<<<<< HEAD
 
     def word_splitter(self, source_text: str) -> List[str]:
         import re
@@ -32,9 +28,6 @@ class PdfExtractionToMarkdownBlock(BasePdfExtractionBlock):
         return chunks
 
     def run(self, pdf_path, method='split_by_page', chunk_size: int =1024, chunk_overlap: int = 256):
-=======
-    def run(self, pdf_path, method='split_by_page'):
->>>>>>> 97a2958 ((feat) kotaemon : add libs taxonomy OK & pipelineblocks OK)
 
         text_md_list = get_pymupdf4llm(pdf_path)
 
@@ -42,7 +35,6 @@ class PdfExtractionToMarkdownBlock(BasePdfExtractionBlock):
 
             return text_md_list
         
-<<<<<<< HEAD
         else:
 
             text_md_all = "\n".join([c["text"] for c in text_md_list])
@@ -52,10 +44,3 @@ class PdfExtractionToMarkdownBlock(BasePdfExtractionBlock):
         
             elif method == "split_by_chunk":
                 return self.get_chunks_fixed_size_with_overlap(text_md_all, chunk_size=chunk_size, overlap=chunk_overlap)
-
-
-=======
-        elif method == 'group_all':
-
-            return "\n".join([c["text"] for c in text_md_list])
->>>>>>> 97a2958 ((feat) kotaemon : add libs taxonomy OK & pipelineblocks OK)
