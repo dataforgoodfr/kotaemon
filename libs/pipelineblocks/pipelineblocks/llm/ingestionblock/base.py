@@ -1,24 +1,11 @@
 from typing import AsyncGenerator, Iterator, Any
 
-from kotaemon.base import BaseComponent, Document
+from kotaemon.base import BaseComponent, Document, SystemMessage
 from pydantic import BaseModel
 
 from pipelineblocks.llm.prompts.scientific_paper import scientific_basic_prompt_entire_doc
 from pipelineblocks.llm.prompts.generic_document import generic_extraction_prompt_entire_doc, generic_extraction_prompt_chunk
 
-class BaseLLMIngestionBlock(BaseComponent):
-
-    """A parent class for all LLM Ingestion Block"""
-
-    def _build_a_system_message_to_force_language(self, language : str = "English") -> SystemMessage:
-        """A common method to force a llm to respond only in a specific language."""
-        return SystemMessage(content = f"You must respond only in {language}. Extract key insights as a list of strings.")
-
-from pipelineblocks.llm.prompts.scientific_paper import scientific_basic_prompt
-
-from kotaemon.base.schema import SystemMessage
-from pipelineblocks.llm.prompts.scientific_paper import scientific_basic_prompt_entire_doc
-from pipelineblocks.llm.prompts.generic_document import generic_extraction_prompt_entire_doc, generic_extraction_prompt_chunk
 
 class BaseLLMIngestionBlock(BaseComponent):
 
@@ -38,7 +25,6 @@ class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
     """Parent class for LLM Inference blocks that deduce metadatas from a document, according to a pydantic schema object"""
         
     taxonomy : BaseModel
-    language : str = "English"
 
     def _invoke_json_schema_from_taxo(self):
 
@@ -76,12 +62,12 @@ class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
             
             return self.taxonomy.model_validate_json(content)
     
-    def _adjust_prompt_according_to_doc_type(self, text, doc_type = 'entire_doc', inference_type: str = "generic") -> str:
+    def _adjust_prompt_according_to_doc_type(self, text, doc_type, inference_type) -> str:
 
         if inference_type == 'scientific' and doc_type == 'entire_doc':
             # First combination example
             enriched_prompt = scientific_basic_prompt_entire_doc(text)
-
+            
         elif inference_type == 'scientific' and doc_type == 'chunk':
             # Other combination Example
             raise NotImplementedError(f"The {inference_type} inference type is not implemented for this doc_type : {doc_type} ")
