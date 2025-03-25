@@ -2,7 +2,6 @@ import re
 
 
 def scientific_basic_prompt_entire_doc(text: str) -> str:
-
     """
     Create a prompt for the basic extraction of a scientific paper.
     Args:
@@ -24,7 +23,7 @@ def scientific_basic_prompt_entire_doc(text: str) -> str:
     return prompt
 
 
-def scientific_main_parts_prompt(text: str, output_format: dict | None = None) -> str:
+def scientific_main_parts_prompt_entire_doc(text: str, output_format: dict | None = None) -> str:
     """
     Create a prompt for the extraction of the main parts of a scientific paper.
     A regular expression divides the text into parts, and the prompt is created

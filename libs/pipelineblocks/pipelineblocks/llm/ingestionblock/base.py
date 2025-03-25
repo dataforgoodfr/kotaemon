@@ -25,6 +25,7 @@ class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
     """Parent class for LLM Inference blocks that deduce metadatas from a document, according to a pydantic schema object"""
         
     taxonomy : BaseModel
+    language : str = "English"
 
     def _invoke_json_schema_from_taxo(self):
 
@@ -62,7 +63,7 @@ class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
             
             return self.taxonomy.model_validate_json(content)
     
-    def _adjust_prompt_according_to_doc_type(self, text, doc_type, inference_type) -> str:
+    def _adjust_prompt_according_to_doc_type(self, text, doc_type = 'entire_doc', inference_type: str = "generic") -> str:
 
         if inference_type == 'scientific' and doc_type == 'entire_doc':
             # First combination example

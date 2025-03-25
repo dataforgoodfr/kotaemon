@@ -1,5 +1,6 @@
 from pipelineblocks.extraction.pdfextractionblock.base import BasePdfExtractionBlock
 from pipelineblocks.extraction.pdf_utils.pymu import get_pymupdf4llm
+from typing import List
 
 from typing import List
 
