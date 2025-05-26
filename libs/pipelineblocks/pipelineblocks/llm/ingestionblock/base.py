@@ -21,7 +21,6 @@ class BaseLLMIngestionBlock(BaseComponent):
 
 class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
 
-
     """Parent class for LLM Inference blocks that deduce metadatas from a document, according to a pydantic schema object"""
         
     taxonomy : BaseModel
@@ -83,7 +82,6 @@ class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
             raise NotImplementedError(f"The {inference_type} inference type is not implemented for this doc_type : {doc_type} ")
         
         return enriched_prompt
-
     def _build_a_system_message_to_force_language(self, language : str = "English") -> SystemMessage:
 
         return SystemMessage(content = f"You must respond only in {language}, regardless of the input language.")

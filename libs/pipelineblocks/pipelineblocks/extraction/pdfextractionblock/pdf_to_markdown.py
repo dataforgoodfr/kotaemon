@@ -2,8 +2,6 @@ from pipelineblocks.extraction.pdfextractionblock.base import BasePdfExtractionB
 from pipelineblocks.extraction.pdf_utils.pymu import get_pymupdf4llm
 from typing import List
 
-from typing import List
-
 class PdfExtractionToMarkdownBlock(BasePdfExtractionBlock):
 
     """A Pdf extraction block, that convert a long pdf into chunks or a long text.
