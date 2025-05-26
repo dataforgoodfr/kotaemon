@@ -210,7 +210,7 @@ class LCChatMistral(LCChatMixin, ChatLLM):  # type: ignore
             from langchain.mistralai import ChatMistralAI
 
         return ChatMistralAI
-    
+
 
 class LCChatOpenAI(LCChatMixin, ChatLLM):  # type: ignore
     def __init__(

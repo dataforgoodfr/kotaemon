@@ -7,9 +7,6 @@ import zipfile
 from copy import deepcopy
 from pathlib import Path
 from typing import Generator
-from enum import Enum
-from typing import get_args, get_origin
-from pydantic import BaseModel
 
 import gradio as gr
 import pandas as pd
@@ -26,8 +23,8 @@ from ...utils.commands import WEB_SEARCH_COMMAND
 from ...utils.rate_limit import check_rate_limit
 from .utils import download_arxiv_pdf, is_arxiv_url
 
-#TODO good import with new taxo system
-#from ...taxonomy_test.document import paper
+# TODO good import with new taxo system
+# from ...taxonomy_test.document import paper
 
 
 KH_DEMO_MODE = getattr(flowsettings, "KH_DEMO_MODE", False)
@@ -35,7 +32,7 @@ KH_SSO_ENABLED = getattr(flowsettings, "KH_SSO_ENABLED", False)
 DOWNLOAD_MESSAGE = "Start download"
 MAX_FILENAME_LENGTH = 20
 MAX_FILE_COUNT = 200
-#KH_TAXONOMY_OBJECT = getattr(flowsettings, "KH_TAXONOMY_OBJECT", None)
+# KH_TAXONOMY_OBJECT = getattr(flowsettings, "KH_TAXONOMY_OBJECT", None)
 
 chat_input_focus_js = """
 function() {
@@ -319,7 +316,7 @@ class FileIndexPage(BasePage):
                             self.reindex = gr.Checkbox(
                                 value=False, label="Force reindex file", container=False
                             )
-                        #TODO - New metadatas system
+                        # TODO - New metadatas system
                         self.metadatas_values = []
                         self.metadatas_keys = []
                         """
@@ -343,7 +340,7 @@ class FileIndexPage(BasePage):
                             elif field_type == bool:
                                 input_component = gr.Checkbox(label=field_name, value=False)
 
-                                
+
                                 elif get_origin(field_type) is list:
                                 sub_item = get_args(field_type)[0]
                                 if isinstance(sub_item , type) and issubclass(sub_item , BaseModel):
@@ -369,7 +366,7 @@ class FileIndexPage(BasePage):
                                             sub_imp_comp = gr.Checkbox(label=field_name, value=False)
                                      """
 
-                                        #self.metadatas.append(sub_imp_comp)
+                        # self.metadatas.append(sub_imp_comp)
 
                     self.upload_button = gr.Button(
                         "Upload and Index", variant="primary"
@@ -1156,11 +1153,11 @@ class FileIndexPage(BasePage):
             selected_files: the list of files already selected
             settings: the settings of the app
         """
-        
+
         metadata_dict = {}
         for i, key in enumerate(self.metadatas_keys):
             metadata_dict[key] = metadatas[i]
-        
+
         if urls:
             files = [it.strip() for it in urls.split("\n")]
             errors = []
@@ -1185,7 +1182,9 @@ class FileIndexPage(BasePage):
 
         outputs, debugs = [], []
         # stream the output
-        output_stream = indexing_pipeline.stream(files, reindex=reindex, metadatas = metadata_dict)
+        output_stream = indexing_pipeline.stream(
+            files, reindex=reindex, metadatas=metadata_dict
+        )
         try:
             while True:
                 response = next(output_stream)

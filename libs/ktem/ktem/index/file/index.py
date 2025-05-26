@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Any, Optional, Type
 
 import boto3
-
 from ktem.components import filestorage_path, get_docstore, get_vectorstore
 from ktem.db.engine import engine
 from ktem.index.base import BaseIndex
@@ -68,7 +67,9 @@ class FileIndex(BaseIndex):
                 {
                     "__tablename__": f"index__{self.id}__source",
                     "__table_args__": (
-                        UniqueConstraint("name", "user", name=f"_name_user_uc_{self.id}"),
+                        UniqueConstraint(
+                            "name", "user", name=f"_name_user_uc_{self.id}"
+                        ),
                     ),
                     "id": Column(
                         String,
@@ -132,7 +133,9 @@ class FileIndex(BaseIndex):
             {
                 "__tablename__": f"index__{self.id}__group",
                 "__table_args__": (
-                    UniqueConstraint("name", "user", name=f"_name_user_uc_{self.id}_filegroup"),
+                    UniqueConstraint(
+                        "name", "user", name=f"_name_user_uc_{self.id}_filegroup"
+                    ),
                 ),
                 "id": Column(
                     String,
@@ -155,14 +158,17 @@ class FileIndex(BaseIndex):
         self._vs: BaseVectorStore = get_vectorstore(f"index_{self.id}")
         self._docstore: BaseDocumentStore = get_docstore(f"index_{self.id}")
 
-        if hasattr(flowsettings, f"KH_USE_CLOUD_FILESTORAGE") and flowsettings.KH_USE_CLOUD_FILESTORAGE:
+        if (
+            hasattr(flowsettings, f"KH_USE_CLOUD_FILESTORAGE")
+            and flowsettings.KH_USE_CLOUD_FILESTORAGE
+        ):
             self._fs_path = None
             self._cloud_fs_uri = flowsettings.KH_CLOUD_FILESTORAGE_URI
             self._cloud_fs_folder = f"index_{self.id}"
         else:
             self._fs_path = filestorage_path / f"index_{self.id}"
             self._cloud_fs_uri = None
-            self._cloud_fs_folder = None
+            self._cloud_fs_folder = "None"
 
         self._resources = {
             "Source": Source,
@@ -172,7 +178,7 @@ class FileIndex(BaseIndex):
             "DocStore": self._docstore,
             "FileStoragePath": self._fs_path,
             "CloudFileStorageUri": self._cloud_fs_uri,
-            "CloudFileStorageFolder": self._cloud_fs_folder
+            "CloudFileStorageFolder": self._cloud_fs_folder,
         }
 
     def _setup_indexing_cls(self):
@@ -360,10 +366,12 @@ class FileIndex(BaseIndex):
             shutil.rmtree(self._fs_path)
 
         if self._cloud_fs_uri:
-            s3 = boto3.resource('s3')
-            bucket = s3.Bucket(self.CloudFSUri.replace("s3://", "").split("/")[0])   
+            s3 = boto3.resource("s3")
+            bucket = s3.Bucket(self._cloud_fs_uri.replace("s3://", "").split("/")[0])
             delete_key_list = []
-            for key in bucket.list(prefix=f"{self._cloud_fs_folder}/"): #delete by batch of 100 objects
+            for key in bucket.list(
+                prefix=f"{self._cloud_fs_folder}/"
+            ):  # delete by batch of 100 objects
                 delete_key_list.append(key)
                 if len(delete_key_list) > 100:
                     bucket.delete_keys(delete_key_list)
@@ -466,7 +474,9 @@ class FileIndex(BaseIndex):
             },
         }
 
-    def get_indexing_pipeline(self, settings, user_id) -> BaseFileIndexIndexing:
+    def get_indexing_pipeline(
+        self, settings, user_id, metadatas: list | None
+    ) -> BaseFileIndexIndexing:
         """Define the interface of the indexing pipeline"""
 
         prefix = f"index.options.{self.id}."

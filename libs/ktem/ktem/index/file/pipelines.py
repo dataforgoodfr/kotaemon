@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Generator, Optional, Sequence
 
 import boto3
-
 import tiktoken
 from decouple import config
 from ktem.db.models import engine
@@ -340,7 +339,9 @@ class IndexPipeline(BaseComponent):
     DS = Param(help="The DocStore")
     FSPath = Param(help="The file storage path")
     CloudFSUri = Param(help="The cloud file storage uri (if a cloud provider is used)")
-    CloudFSFolder = Param(help="The cloud file storage folder (if a cloud provider is used)")
+    CloudFSFolder = Param(
+        help="The cloud file storage folder (if a cloud provider is used)"
+    )
     user_id = Param(help="The user id")
     collection_name: str = "default"
     private: bool = False
@@ -353,7 +354,9 @@ class IndexPipeline(BaseComponent):
             vector_store=self.VS, doc_store=self.DS, embedding=self.embedding
         )
 
-    def handle_docs(self, docs, file_id, file_name, metadatas) -> Generator[Document, None, int]:
+    def handle_docs(
+        self, docs, file_id, file_name, metadatas
+    ) -> Generator[Document, None, int]:
         s_time = time.time()
         text_docs = []
         non_text_docs = []
@@ -534,7 +537,7 @@ class IndexPipeline(BaseComponent):
             shutil.copy(file_path, self.FSPath / file_hash)
 
         if self.CloudFSUri:
-            s3 = boto3.resource('s3')
+            s3 = boto3.resource("s3")
             bucket = s3.Bucket(self.CloudFSUri.replace("s3://", "").split("/")[0])
             with file_path.open("rb") as content:
                 bucket.upload_fileobj(content, f"{self.CloudFSFolder}/{file_hash}")
@@ -616,9 +619,13 @@ class IndexPipeline(BaseComponent):
         raise NotImplementedError
 
     def stream(
-        self, file_path: str | Path, reindex: bool, metadatas: dict = None, **kwargs
+        self,
+        file_path: str | Path,
+        reindex: bool,
+        metadatas: dict | None = None,
+        **kwargs,
     ) -> Generator[Document, None, tuple[str, list[Document]]]:
-        
+
         # check if the file is already indexed
         if isinstance(file_path, Path):
             file_path = file_path.resolve()
@@ -784,8 +791,8 @@ class IndexDocumentPipeline(BaseFileIndexIndexing):
             VS=self.VS,
             DS=self.DS,
             FSPath=self.FSPath,
-            CloudFSUri = self.CloudFSUri,
-            CloudFSFolder = self.CloudFSFolder,
+            CloudFSUri=self.CloudFSUri,
+            CloudFSFolder=self.CloudFSFolder,
             user_id=self.user_id,
             private=self.private,
             embedding=self.embedding,
@@ -799,7 +806,11 @@ class IndexDocumentPipeline(BaseFileIndexIndexing):
         raise NotImplementedError
 
     def stream(
-        self, file_paths: str | Path | list[str | Path], reindex: bool = False, metadatas: dict = None, **kwargs
+        self,
+        file_paths: str | Path | list[str | Path],
+        reindex: bool = False,
+        metadatas: dict | None = None,
+        **kwargs,
     ) -> Generator[
         Document, None, tuple[list[str | None], list[str | None], list[Document]]
     ]:

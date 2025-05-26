@@ -6,7 +6,7 @@ from typing import Any, Optional
 from llama_index.core.schema import NodeRelationship, RelatedNodeInfo
 from llama_index.core.vector_stores.types import BasePydanticVectorStore
 from llama_index.core.vector_stores.types import VectorStore as LIVectorStore
-from llama_index.core.vector_stores.types import VectorStoreQuery, MetadataFilters, MetadataFilter, FilterOperator, ExactMatchFilter
+from llama_index.core.vector_stores.types import VectorStoreQuery
 
 from kotaemon.base import DocumentWithEmbedding
 
@@ -185,7 +185,7 @@ class LlamaIndexVectorStore(BaseVectorStore):
             else:
                 filters = MetadataFilters(
                 filters=metadatas_filter_objs)
-        
+
             kwargs['filters'] = filters
         """
 
@@ -218,7 +218,7 @@ class LlamaIndexVectorStore(BaseVectorStore):
                 query_embedding=embedding,
                 similarity_top_k=top_k,
                 node_ids=ids,
-                #filters=filters,
+                # filters=filters,
                 **vsq_kwargs,
             ),
             **vs_kwargs,
