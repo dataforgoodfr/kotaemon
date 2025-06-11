@@ -159,7 +159,7 @@ class FileIndex(BaseIndex):
         self._docstore: BaseDocumentStore = get_docstore(f"index_{self.id}")
 
         if (
-            hasattr(flowsettings, f"KH_USE_CLOUD_FILESTORAGE")
+            hasattr(flowsettings, "KH_USE_CLOUD_FILESTORAGE")
             and flowsettings.KH_USE_CLOUD_FILESTORAGE
         ):
             self._fs_path = None
