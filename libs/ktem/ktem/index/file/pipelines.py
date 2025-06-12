@@ -339,7 +339,9 @@ class IndexPipeline(BaseComponent):
     DS = Param(help="The DocStore")
     FSPath = Param(help="The file storage path")
     CloudFSUri = Param(help="The cloud file storage uri (if a cloud provider is used)")
-    CloudFSFolder = Param(help="The cloud file storage folder (if a cloud provider is used)")
+    CloudFSFolder = Param(
+        help="The cloud file storage folder (if a cloud provider is used)"
+    )
     user_id = Param(help="The user id")
     collection_name: str = "default"
     private: bool = False
@@ -531,14 +533,13 @@ class IndexPipeline(BaseComponent):
         with file_path.open("rb") as fi:
             file_hash = sha256(fi.read()).hexdigest()
 
-        if self.FSPath:
-            shutil.copy(file_path, self.FSPath / file_hash)
-
-        if self.CloudFSUri:
-            s3 = boto3.resource('s3')
+        if self.CloudFSUri != "None" and self.CloudFSFolder != "None":
+            s3 = boto3.resource("s3")
             bucket = s3.Bucket(self.CloudFSUri.replace("s3://", "").split("/")[0])
             with file_path.open("rb") as content:
                 bucket.upload_fileobj(content, f"{self.CloudFSFolder}/{file_hash}")
+        else:
+            shutil.copy(file_path, self.FSPath / file_hash)
 
         source = self.Source(
             name=file_path.name,

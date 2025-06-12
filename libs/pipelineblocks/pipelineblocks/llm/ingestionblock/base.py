@@ -16,11 +16,15 @@ class BaseLLMIngestionBlock(BaseComponent):
 
     """A parent class for all LLM Ingestion Block"""
 
-    def _build_a_system_message_to_force_language(self, language : str = "English") -> SystemMessage:
+    def _build_a_system_message_to_force_language(
+        self, language: str = "English"
+    ) -> SystemMessage:
         """A common method to force a llm to respond only in a specific language."""
-        return SystemMessage(content = f"You must respond only in {language}. Extract key insights as a list of strings.")
+        return SystemMessage(
+            content=f"You must respond only in {language}. Extract key insights as a list of strings."
+        )
 
-    def stream(self, *args, **kwargs) -> Iterator[Document] | None :
+    def stream(self, *args, **kwargs) -> Iterator[Document] | None:
         raise NotImplementedError
 
     def astream(self, *args, **kwargs) -> AsyncGenerator[Document, None] | None:
@@ -34,7 +38,8 @@ class BaseLLMIngestionBlock(BaseComponent):
 
 class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
 
-    """Parent class for LLM Inference blocks that deduce metadatas from a document, according to a pydantic schema object"""
+    """Parent class for LLM Inference blocks that deduce metadatas
+    from a document, according to a pydantic schema object"""
 
     taxonomy: BaseModel
     language: str = "English"
@@ -43,17 +48,19 @@ class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
 
         return self.taxonomy.model_json_schema()
 
-    def _convert_content_to_pydantic_schema(self, content, mode='json') -> BaseModel:
-            
-        if mode=='json':
-        
+    def _convert_content_to_pydantic_schema(self, content, mode="json") -> BaseModel:
+
+        if mode == "json":
+
             return self.taxonomy.model_validate_json(content)
-        
-        elif mode=='dict':
+
+        elif mode == "dict":
             return self.taxonomy.model_validate(content)
-        
+
         else:
-            raise NotImplementedError("Please provide a mode implemented for this method '_convert_content_to_pydantic_schema' ")
+            raise NotImplementedError(
+                "Please provide a mode implemented for this method '_convert_content_to_pydantic_schema' "
+            )
 
     def _adjust_prompt_according_to_doc_type(
         self, text, doc_type="entire_doc", inference_type: str = "generic"
@@ -95,7 +102,7 @@ class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
         )
 
     def run(self, *args, **kwargs) -> BaseModel | NotImplementedError:
-        return NotImplementedError
+        raise NotImplementedError
 
 
 class CustomPromptLLMInfBlock(BaseLLMIngestionBlock):
@@ -106,15 +113,17 @@ class CustomPromptLLMInfBlock(BaseLLMIngestionBlock):
 
         return pydantic_schema.model_json_schema()
 
-    def _convert_content_to_pydantic_schema(self, content, pydantic_schema) -> BaseModel:
-            
+    def _convert_content_to_pydantic_schema(
+        self, content, pydantic_schema
+    ) -> BaseModel:
+
         return pydantic_schema.model_validate_json(content)
 
     def run(self, *args, **kwargs) -> BaseModel:
-        return NotImplementedError
+        raise NotImplementedError
 
 
-# TODO --- Exemple
+# TODO --- Example
 class SummarizationLLMInfBlock(BaseLLMIngestionBlock):
     def __init__(self, *args, **kwargs):
 
