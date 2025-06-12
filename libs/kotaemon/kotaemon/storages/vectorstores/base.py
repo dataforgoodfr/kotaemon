@@ -179,8 +179,7 @@ class LlamaIndexVectorStore(BaseVectorStore):
                     filters.filters.extend(metadatas_filter_objs)
 
                 else:
-                    print(f"Sorry, but this filters {filters} \
-                    is not a MetadataFilter object...")
+                    print(f"Sorry, but this filters {filters} is not a MetadataFilter object...")
                     filters = MetadataFilters(
                     filters=metadatas_filter_objs)
             else:
@@ -192,8 +191,7 @@ class LlamaIndexVectorStore(BaseVectorStore):
 
         """
         filters = MetadataFilters(
-                filters=[ExactMatchFilter(key="metadata.doc_type",
-                            value="concrete_experiment")]
+                filters=[ExactMatchFilter(key="metadata.doc_type", value="concrete_experiment")]
         )"""
 
         """retrieval_kwargs["filters"] = MetadataFilters(

@@ -1,4 +1,4 @@
-from typing import Any, AsyncGenerator, Iterator, Optional
+from typing import Any, AsyncGenerator, Iterator
 
 from pipelineblocks.llm.prompts.generic_document import (
     generic_extraction_prompt_chunk,
@@ -13,6 +13,17 @@ from kotaemon.base import BaseComponent, Document, SystemMessage
 
 
 class BaseLLMIngestionBlock(BaseComponent):
+
+    """A parent class for all LLM Ingestion Block"""
+
+    def _build_a_system_message_to_force_language(
+        self, language: str = "English"
+    ) -> SystemMessage:
+        """A common method to force a llm to respond only in a specific language."""
+        return SystemMessage(
+            content=f"You must respond only in {language}. Extract key insights as a list of strings."
+        )
+
     def stream(self, *args, **kwargs) -> Iterator[Document] | None:
         raise NotImplementedError
 
@@ -90,7 +101,7 @@ class MetadatasLLMInfBlock(BaseLLMIngestionBlock):
             content=f"You must respond only in {language}, regardless of the input language."
         )
 
-    def run(self, *args, **kwargs) -> Optional[BaseModel]:
+    def run(self, *args, **kwargs) -> BaseModel | NotImplementedError:
         raise NotImplementedError
 
 
@@ -108,7 +119,7 @@ class CustomPromptLLMInfBlock(BaseLLMIngestionBlock):
 
         return pydantic_schema.model_validate_json(content)
 
-    def run(self, *args, **kwargs) -> Optional[BaseModel]:
+    def run(self, *args, **kwargs) -> BaseModel:
         raise NotImplementedError
 
 

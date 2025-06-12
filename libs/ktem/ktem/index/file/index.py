@@ -157,17 +157,16 @@ class FileIndex(BaseIndex):
 
         self._vs: BaseVectorStore = get_vectorstore(f"index_{self.id}")
         self._docstore: BaseDocumentStore = get_docstore(f"index_{self.id}")
+        self._fs_path = filestorage_path / f"index_{self.id}"
 
         if (
             hasattr(flowsettings, "KH_USE_CLOUD_FILESTORAGE")
             and flowsettings.KH_USE_CLOUD_FILESTORAGE
         ):
-            self._fs_path = None
             self._cloud_fs_uri = flowsettings.KH_CLOUD_FILESTORAGE_URI
             self._cloud_fs_folder = f"index_{self.id}"
         else:
-            self._fs_path = filestorage_path / f"index_{self.id}"
-            self._cloud_fs_uri = None
+            self._cloud_fs_uri = "None"
             self._cloud_fs_folder = "None"
 
         self._resources = {
@@ -362,10 +361,10 @@ class FileIndex(BaseIndex):
         self._resources["FileGroup"].__table__.drop(engine)  # type: ignore
         self._vs.drop()
         self._docstore.drop()
-        if self._fs_path:
-            shutil.rmtree(self._fs_path)
-
-        if self._cloud_fs_uri:
+        # remove the file storage path
+        shutil.rmtree(self._fs_path)
+        # remove the cloud file storage
+        if self._cloud_fs_uri != "None" and self._cloud_fs_folder != "None":
             s3 = boto3.resource("s3")
             bucket = s3.Bucket(self._cloud_fs_uri.replace("s3://", "").split("/")[0])
             delete_key_list = []
