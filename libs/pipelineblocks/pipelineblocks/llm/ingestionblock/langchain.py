@@ -105,7 +105,7 @@ class LangChainCustomPromptLLMInference(CustomPromptLLMInfBlock):
     def run(
         self,
         messages,
-        temperature: int | None = None,
+        temperature: float | None = None,
         language: str = "English",
         pydantic_schema: BaseModel | None = None,
         extra_max_retries: int = 10,
